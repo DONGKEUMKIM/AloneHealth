@@ -76,7 +76,7 @@ public class ExerciseShotActivity extends AppCompatActivity
     TextToSpeech tts;
     int set, num;
     String exercise;
-
+    String date;
     //time interval
     int exercisePrepareInterval = 7;
     int samplingInterval = 4;
@@ -172,9 +172,13 @@ public class ExerciseShotActivity extends AppCompatActivity
 
         //운동 이름, set 수 넘겨 받기
         Intent intent = getIntent();
+        /**
+         * 운동 이름 셋트 횟수 셋팅
+         */
         exercise = intent.getExtras().getString("Exercise");
         num = intent.getExtras().getInt("Number");
         set = intent.getExtras().getInt("Set");
+        date = intent.getExtras().getString("DATE");
         exercisetext.setText(exercise);
         settext.setText(set + " SET " + num);
 
@@ -302,6 +306,52 @@ public class ExerciseShotActivity extends AppCompatActivity
                             progress = TOWARD_EXERCISE;
                             break;
                         case COMPLETE_EXERCISE:
+
+                            //부위 능력치 변화
+                            ExerciseData thisExercise = SQLiteManager.sqLiteManager.selectExerciseDataFormExerciseName(exercise);
+                            CharacterStatData ThisMonthCharacterStat = new CharacterStatData();
+                            ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(date);
+
+                            int totalTimes = set * num;     //운동의 총 횟수
+                            int arm = 0;
+                            int shoulder=0;
+                            int back = 0;
+                            int chest = 0;
+                            int abs = 0;
+                            int legs = 0;
+                            if(thisExercise.getArm() != 0)
+                                arm = (int)(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02);
+                            else
+                                arm = ThisMonthCharacterStat.getArm();
+
+                            if(thisExercise.getShoulder() != 0)
+                                shoulder = (int)(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02);
+                            else
+                                shoulder = ThisMonthCharacterStat.getShoulder();
+
+                            if(thisExercise.getBack() != 0)
+                                back = (int)(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02);
+                            else
+                                back = ThisMonthCharacterStat.getBack();
+
+                            if(thisExercise.getChest() != 0)
+                                chest = (int)(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02);
+                            else
+                                chest = ThisMonthCharacterStat.getChest();
+
+                            if(thisExercise.getAbs() != 0)
+                                abs = (int)(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02);
+                            else
+                                abs = ThisMonthCharacterStat.getAbs();
+
+                            if(thisExercise.getLeg() != 0)
+                                legs = (int)(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02);
+                            else
+                                legs = ThisMonthCharacterStat.getLeg();
+
+                            SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(date,
+                                    chest, arm, abs, shoulder, back,legs));
+
 
                             Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                             startActivity(intent);

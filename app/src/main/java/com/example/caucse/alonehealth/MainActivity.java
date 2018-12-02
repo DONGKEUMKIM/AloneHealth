@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity{
     Date today = new Date();
     SimpleDateFormat DateFormat = new SimpleDateFormat("yyyy. MM. dd");
     SimpleDateFormat DateFormat_Day = new SimpleDateFormat("E", Locale.KOREAN);
+    SimpleDateFormat DateFormat_YearAndMonth = new SimpleDateFormat("yyyy. MM");
 
     //////////하단 첫화면 레이아웃//////////////
     DateAdapter at; //어댑터
@@ -86,8 +87,13 @@ public class MainActivity extends AppCompatActivity{
     String selectedEN;              //운동 이름
     int selectedSet;                //운동의 세트수
     int selectednumber;             //세트 횟수
+    int selectedOrientation;          //운동의 가로세로
     ////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////
+    String characterdate;
+    CharacterStatData ThisMonthCharacterStat;
+    //////////////////////////////////////////////////////
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +114,11 @@ public class MainActivity extends AppCompatActivity{
         at = new DateAdapter(this);
         vp.setAdapter(at);
 
+        //////////////캐릭터 능력치 셋팅//////////////////////
+        characterdate =  DateFormat_YearAndMonth.format(today);
+
+        ThisMonthCharacterStat = new CharacterStatData();
+        ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(characterdate);
         /////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////뷰페이저 체인지리스너//////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -252,6 +263,7 @@ public class MainActivity extends AppCompatActivity{
                                                         selectedItemId = temp.getId();
                                                         selectedExerciseId = temp.getExercise_id();
                                                         selectedEN = SQLiteManager.sqLiteManager.selectExerciseNameFromId(temp.getExercise_id());
+                                                        selectedOrientation = SQLiteManager.sqLiteManager.selectOrientationFromId(temp.getExercise_id());
                                                         selectedSet = temp.getSet();
                                                         selectednumber = temp.getNumber();
                                                     }
@@ -339,22 +351,65 @@ public class MainActivity extends AppCompatActivity{
                 }
                 else if(action == MotionEvent.ACTION_UP){
                     startbutton.setBackgroundResource(R.drawable.startbutton);
-                    Intent intent = new Intent(getApplicationContext(),
-                            ExerciseShotActivity.class);
-                    intent.putExtra("Exercise", selectedEN);
-                    intent.putExtra("Set", selectedSet);
-                    intent.putExtra("Number", selectednumber);
-                    startActivity(intent);
 
+                    if(selectedOrientation == 0) {
+                        //test용!
+                        ExerciseData thisExercise = SQLiteManager.sqLiteManager.selectExerciseDataFormExerciseName(selectedEN);
+                        int totalTimes = selectedSet * selectednumber;     //운동의 총 횟수
+                        int arm = 0;
+                        int shoulder=0;
+                        int back = 0;
+                        int chest = 0;
+                        int abs = 0;
+                        int legs = 0;
+                        if(thisExercise.getArm() != 0)
+                            arm = (int)(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02);
+                        else
+                            arm = ThisMonthCharacterStat.getArm();
 
-                    /**
-                     * 운동시작화면으로 이동 로직 추가
-                     */
-                    //운동 실행결과 갱신 - 임시
-                    if(SQLiteManager.sqLiteManager.updateScheduleData(new ScheduleData(selectedItemId,selectedDate,selectedExerciseId,selectedSet,selectednumber,1))) {
-                        //Toast.makeText(getContext(), "성공적으로 수정되었습니다..", Toast.LENGTH_SHORT).show();
-                        cal_adapter.setListViewItemList(SQLiteManager.sqLiteManager.selectScheduleFromDate(selectedDate));
-                        cal_adapter.notifyDataSetChanged();
+                        if(thisExercise.getShoulder() != 0)
+                            shoulder = (int)(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02);
+                        else
+                            shoulder = ThisMonthCharacterStat.getShoulder();
+
+                        if(thisExercise.getBack() != 0)
+                            back = (int)(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02);
+                        else
+                            back = ThisMonthCharacterStat.getBack();
+
+                        if(thisExercise.getChest() != 0)
+                            chest = (int)(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02);
+                        else
+                            chest = ThisMonthCharacterStat.getChest();
+
+                        if(thisExercise.getAbs() != 0)
+                            abs = (int)(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02);
+                        else
+                            abs = ThisMonthCharacterStat.getAbs();
+
+                        if(thisExercise.getLeg() != 0)
+                            legs = (int)(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02);
+                        else
+                            legs = ThisMonthCharacterStat.getLeg();
+
+                        SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(characterdate,
+                                chest, arm, abs, shoulder, back,legs));
+
+                        //가로용 액티비티 전환
+                        /*Intent intent = new Intent(getApplicationContext(),
+                                ExerciseShotActivity.class);
+                        intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);
+                        intent.putExtra("DATE", characterdate);
+                        startActivity(intent);*/
+                    }
+                    else if(selectedOrientation == 1)
+                    {
+                        //세로용 액티비티 전환
+                        /*intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);*/
                     }
                 }
                 return true;
@@ -455,14 +510,52 @@ public class MainActivity extends AppCompatActivity{
             case 0 :    //첫번째 뷰
                 view = inflater.inflate(R.layout.main_top_fir, frame, false);
                 top_state = 0;
+
+                ImageView basicCharArmImg = (ImageView)view.findViewById(R.id.basic_arm_img);
+
+                Bitmap myBitmap0 = ((BitmapDrawable)basicCharArmImg.getDrawable()).getBitmap();
+                Bitmap newBitmap0 = ChangeResourceColor(myBitmap0,ThisMonthCharacterStat.getArm());
+                basicCharArmImg.setImageDrawable(new BitmapDrawable(getResources(), newBitmap0));
+
+                ImageView basicCharShoulderImg = (ImageView)view.findViewById(R.id.basic_shoulder_img);
+
+                Bitmap myBitmap1 = ((BitmapDrawable)basicCharShoulderImg.getDrawable()).getBitmap();
+                Bitmap newBitmap1 = ChangeResourceColor(myBitmap1,ThisMonthCharacterStat.getShoulder());
+                basicCharShoulderImg.setImageDrawable(new BitmapDrawable(getResources(), newBitmap1));
+
+                ImageView basicCharChestImg = (ImageView)view.findViewById(R.id.basic_chest_img);
+
+                Bitmap myBitmap2 = ((BitmapDrawable)basicCharChestImg.getDrawable()).getBitmap();
+                Bitmap newBitmap2 = ChangeResourceColor(myBitmap2,ThisMonthCharacterStat.getChest());
+                basicCharChestImg.setImageDrawable(new BitmapDrawable(getResources(), newBitmap2));
+
+                ImageView basicCharAbsImg = (ImageView)view.findViewById(R.id.basic_abs_img);
+
+                Bitmap myBitmap3 = ((BitmapDrawable)basicCharAbsImg.getDrawable()).getBitmap();
+                Bitmap newBitmap3 = ChangeResourceColor(myBitmap3,ThisMonthCharacterStat.getAbs());
+                basicCharAbsImg.setImageDrawable(new BitmapDrawable(getResources(), newBitmap3));
+
+                ImageView basicCharlegsImg = (ImageView)view.findViewById(R.id.basic_legs_img);
+
+                Bitmap myBitmap4 = ((BitmapDrawable)basicCharlegsImg.getDrawable()).getBitmap();
+                Bitmap newBitmap4 = ChangeResourceColor(myBitmap4,ThisMonthCharacterStat.getLeg());
+                basicCharlegsImg.setImageDrawable(new BitmapDrawable(getResources(), newBitmap4));
                 break;
             case 1 :    //캐릭터 능력치 뷰
                 view = inflater.inflate(R.layout.main_top_char, frame, false);
                 top_state = 1;
 
-                //텍스트뷰 이벤트
-                TextView arm_text = (TextView)view.findViewById(R.id.arm_data);
+                //초기이미지는 팔  셋팅
+                ImageView firstChangeView = (ImageView)view.findViewById(R.id.char_change_img);
+                firstChangeView.setImageResource(R.drawable.arm_change_img);
+                Bitmap firstBitmap = ((BitmapDrawable)firstChangeView.getDrawable()).getBitmap();
+                Bitmap newfirstBitmap =ChangeResourceColor(firstBitmap,ThisMonthCharacterStat.getArm());
+                firstChangeView.setImageDrawable(new BitmapDrawable(getResources(), newfirstBitmap));
 
+                //텍스트뷰 이벤트
+                final TextView arm_text = (TextView)view.findViewById(R.id.arm_data);
+                String arm_data = String.valueOf(ThisMonthCharacterStat.getArm());
+                arm_text.setText(arm_data + "/100");
                 //float xxx = SQLiteManager.sqLiteManager.selectCharacterStatFromLocomotorName();
 
                 arm_text.setOnTouchListener(new View.OnTouchListener(){
@@ -478,8 +571,9 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.arm_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_copper(myBitmap);
+                                Bitmap newBitmap =ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getArm());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
+
                         }
                         return true;
                     }
@@ -487,7 +581,9 @@ public class MainActivity extends AppCompatActivity{
                 });
 
                 //텍스트뷰 이벤트
-                TextView shoulder_text = (TextView)view.findViewById(R.id.shoulder_data);
+                final TextView shoulder_text = (TextView)view.findViewById(R.id.shoulder_data);
+                String shoulder_data = String.valueOf(ThisMonthCharacterStat.getShoulder());
+                shoulder_text.setText(shoulder_data + "/100");
                 shoulder_text.setOnTouchListener(new View.OnTouchListener(){
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -501,7 +597,7 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.shoulder_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_gold(myBitmap);
+                                Bitmap newBitmap =ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getShoulder());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
 
                         }
@@ -512,7 +608,9 @@ public class MainActivity extends AppCompatActivity{
                 });
 
                 //텍스트뷰 이벤트
-                TextView back_text = (TextView)view.findViewById(R.id.back_data);
+                final TextView back_text = (TextView)view.findViewById(R.id.back_data);
+                String back_data = String.valueOf(ThisMonthCharacterStat.getBack());
+                back_text.setText(back_data + "/100");
                 back_text.setOnTouchListener(new View.OnTouchListener(){
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -526,8 +624,9 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.back_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_silver(myBitmap);
+                                Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getBack());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
+
                         }
                         return true;
                     }
@@ -535,7 +634,9 @@ public class MainActivity extends AppCompatActivity{
                 });
 
                 //텍스트뷰 이벤트
-                TextView abs_text = (TextView)view.findViewById(R.id.abs_data);
+                final TextView abs_text = (TextView)view.findViewById(R.id.abs_data);
+                String abs_data = String.valueOf(ThisMonthCharacterStat.getAbs());
+                abs_text.setText(abs_data + "/100");
                 abs_text.setOnTouchListener(new View.OnTouchListener(){
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -549,8 +650,9 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.abs_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_copper(myBitmap);
+                                Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getAbs());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
+
                         }
                         return true;
                     }
@@ -558,7 +660,9 @@ public class MainActivity extends AppCompatActivity{
                 });
 
                 //텍스트뷰 이벤트
-                TextView chest_text = (TextView)view.findViewById(R.id.chest_data);
+                final TextView chest_text = (TextView)view.findViewById(R.id.chest_data);
+                String chest_data = String.valueOf(ThisMonthCharacterStat.getChest());
+                chest_text.setText(chest_data + "/100");
                 chest_text.setOnTouchListener(new View.OnTouchListener(){
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -572,8 +676,9 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.chest_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_gold(myBitmap);
+                                Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getChest());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
+
                         }
                         return true;
                     }
@@ -581,7 +686,9 @@ public class MainActivity extends AppCompatActivity{
                 });
 
                 //텍스트뷰 이벤트
-                TextView legs_text = (TextView)view.findViewById(R.id.legs_data);
+                final TextView legs_text = (TextView)view.findViewById(R.id.legs_data);
+                String legs_data = String.valueOf(ThisMonthCharacterStat.getLeg());
+                legs_text.setText(legs_data + "/100");
                 legs_text.setOnTouchListener(new View.OnTouchListener(){
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
@@ -595,8 +702,9 @@ public class MainActivity extends AppCompatActivity{
                                 CharChangeView.setImageResource(R.drawable.legs_change_img);
 
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
-                                Bitmap newBitmap = addGradient_silver(myBitmap);
+                                Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getLeg());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
+
                         }
                         return true;
                     }
@@ -611,55 +719,32 @@ public class MainActivity extends AppCompatActivity{
         if(view != null) {
             frame.addView(view);
         }
-
-
     }
 
-    public Bitmap addGradient_gold(Bitmap originalBitmap) {
+    //능력치 별 부위 이미지 컬러를 바꾸는 함수
+    public Bitmap ChangeResourceColor(Bitmap originalBitmap, int num)
+    {
         int width = originalBitmap.getWidth();
         int height = originalBitmap.getHeight();
+
+        LinearGradient shader = null;
 
         Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(updatedBitmap);
         canvas.drawBitmap(originalBitmap, 0, 0, null);
 
         Paint paint = new Paint();
-        LinearGradient shader = new LinearGradient(0, 0, 0, height, 0xFFffd700, 0xFFf0e68c, Shader.TileMode.MIRROR);
+        if(num >=0 && num < 30)
+            shader = new LinearGradient(0, 0, 0, height, 0xFFB46042, 0xFFffe5c0, Shader.TileMode.MIRROR);   //동색
+        else if(num >= 30 && num < 70)
+            shader = new LinearGradient(0, 0, 0, height, 0xFF646464, 0xFFd2d2d2, Shader.TileMode.MIRROR);   //은색
+        else
+            shader = new LinearGradient(0, 0, 0, height, 0xFFffd700, 0xFFf0e68c, Shader.TileMode.MIRROR);   //금색
+
         paint.setShader(shader);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
         canvas.drawRect(0, 0, width, height, paint);
         return updatedBitmap;
-    }
 
-    public Bitmap addGradient_copper(Bitmap originalBitmap) {
-        int width = originalBitmap.getWidth();
-        int height = originalBitmap.getHeight();
-
-        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(updatedBitmap);
-        canvas.drawBitmap(originalBitmap, 0, 0, null);
-
-        Paint paint = new Paint();
-        LinearGradient shader = new LinearGradient(0, 0, 0, height, 0xFFB46042, 0xFFffe5c0, Shader.TileMode.MIRROR);
-        paint.setShader(shader);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-        canvas.drawRect(0, 0, width, height, paint);
-        return updatedBitmap;
-    }
-
-    public Bitmap addGradient_silver(Bitmap originalBitmap) {
-        int width = originalBitmap.getWidth();
-        int height = originalBitmap.getHeight();
-
-        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(updatedBitmap);
-        canvas.drawBitmap(originalBitmap, 0, 0, null);
-
-        Paint paint = new Paint();
-        LinearGradient shader = new LinearGradient(0, 0, 0, height, 0xFF646464, 0xFFd2d2d2, Shader.TileMode.MIRROR);
-        paint.setShader(shader);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
-        canvas.drawRect(0, 0, width, height, paint);
-        return updatedBitmap;
     }
 }

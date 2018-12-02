@@ -257,7 +257,7 @@ public class CalendarManager extends AppCompatActivity {
                             }
                             else
                             {
-                                getViewByPosition(iCnt,listView).setBackgroundColor(Color.WHITE);
+                                getViewByPosition(iCnt,listView).setBackgroundColor(Color.TRANSPARENT);
                             }
                         }
                     }
@@ -266,8 +266,8 @@ public class CalendarManager extends AppCompatActivity {
                         editExerciseButton.setVisibility(View.INVISIBLE);
                         deleteExerciseButton.setVisibility(View.INVISIBLE);
                         addExerciseButton.setVisibility(View.VISIBLE);
-                        getViewByPosition(i,listView).setBackgroundColor(Color.WHITE);
-                        indexOfSelectedItem = listView.getAdapter().getCount()+1;
+                        getViewByPosition(i,listView).setBackgroundColor(Color.TRANSPARENT);
+                        indexOfSelectedItem = -1;
                     }
                 adapter.notifyDataSetChanged();
 

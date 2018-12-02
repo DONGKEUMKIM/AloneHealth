@@ -89,7 +89,6 @@ public class DateAdapter extends PagerAdapter {
     //false 일때 -1
     public void CalWhatday(int position, boolean LeftOrRight)
     {
-
         //true 일때
         if(LeftOrRight)
         {
@@ -133,7 +132,7 @@ public class DateAdapter extends PagerAdapter {
                 cal_day.setTime(day);
                 cal_day.add(Calendar.DAY_OF_WEEK, -1);
 
-                  DateList.get(position).date_str = DATESDF.format(cal_date.getTime());
+                DateList.get(position).date_str = DATESDF.format(cal_date.getTime());
                 DateList.get(position).day_str = DAYSDF.format(cal_day.getTime());
             }
             catch(ParseException e)

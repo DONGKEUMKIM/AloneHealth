@@ -722,4 +722,9 @@ public class MainActivity extends AppCompatActivity{
         return updatedBitmap;
 
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

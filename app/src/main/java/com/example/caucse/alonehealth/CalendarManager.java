@@ -293,9 +293,7 @@ public class CalendarManager extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+
     }
 
     //리스트뷰에서 포지션위치의 자식을 받아오는 함수

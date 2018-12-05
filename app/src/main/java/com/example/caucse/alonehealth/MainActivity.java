@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity{
                     startbutton.setBackgroundResource(R.drawable.startbutton);
 
                     Intent intent = new Intent(getApplicationContext(),
-                            ExerciseShotActivity.class);
+                            SeveralExercise.class);
                     intent.putExtra("Exercise", selectedEN);
                     intent.putExtra("ID",selectedItemId);
                     intent.putExtra("Set", selectedSet);

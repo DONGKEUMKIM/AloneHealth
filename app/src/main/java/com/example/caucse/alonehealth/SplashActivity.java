@@ -25,7 +25,11 @@ public class SplashActivity extends AppCompatActivity {
 
     private class splashhandler implements Runnable{
         public void run(){
-            startActivity(new Intent(getApplication(),MainActivity.class)); //로딩이 끝난후 이동할 Activity
+            Intent intent = new Intent(getApplication(),SeveralExercise.class);
+            intent.putExtra("Exercise", "레프트사이드라이즈");
+            intent.putExtra("Set", 1);
+            intent.putExtra("Number", 10);
+            startActivity(intent); //로딩이 끝난후 이동할 Activity
             SplashActivity.this.finish();   //로딩페이지 Activity Stack에서 제거
         }
 

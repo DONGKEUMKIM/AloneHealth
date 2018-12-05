@@ -175,6 +175,10 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             count = samplingInterval;
                             timerThread.start();
                             break;
+                        case READY_STATE:
+                            user_state = COUNT_STATE;
+                            mHandler.sendEmptyMessage(0);
+                            break;
                     }
                     unregisterReceiver(broadcastReceiver);
                 }
@@ -266,13 +270,14 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         mOpenCvCameraView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (startButton.getVisibility() == startButton.GONE) {
-                    if(exercise_Exit.getVisibility() == exercise_Exit.GONE) {
-                        exercise_Exit.setVisibility(exercise_Exit.VISIBLE);
-                        exercise_Exit.bringToFront();
+                if (startButton.getVisibility() == View.GONE) {
+                    if(exercise_Exit.getVisibility() == View.INVISIBLE) {
+                        exercise_Exit.setVisibility(View.VISIBLE);
+                        exerciseCountTextView.setVisibility(View.INVISIBLE);
                     }
-                    else if(exercise_Exit.getVisibility() == exercise_Exit.VISIBLE){
-                        exercise_Exit.setVisibility(exercise_Exit.GONE);
+                    else if(exercise_Exit.getVisibility() == View.VISIBLE){
+                        exercise_Exit.setVisibility(View.INVISIBLE);
+                        exerciseCountTextView.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -343,7 +348,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             max_difference31 = CountWhitePixels(matDiff.getNativeObjAddr());
                             exerciseCountTextView.setText("운동 시작");
                             tts.speak(String.format("운동을 시작해주세요."), TextToSpeech.QUEUE_FLUSH, null);
-                            user_state = COUNT_STATE;
+                            registerReceiver(broadcastReceiver,intentFilter);
                             break;
                         case COUNT_STATE:
                             if (current_count >= exercise_count) {
@@ -679,4 +684,8 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         return sum;
     }
 
+    @Override
+    public void onBackPressed() {
+
+    }
 }

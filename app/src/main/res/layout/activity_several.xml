@@ -5,53 +5,89 @@
     android:layout_height="match_parent"
     tools:context=".SeveralExercise">
 
-
     <org.opencv.android.JavaCameraView
         android:id="@+id/activity_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
-
-    <!--<ImageView
-        android:id="@+id/stop"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_centerInParent="true"
-        android:background="@drawable/stopbutton"
-        android:visibility="invisible" />-->
-
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="35dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
         android:id = "@+id/exerciseName"
-        android:layout_gravity="bottom|left"
-        android:background="#AAAAAA"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="50dp"
-        android:padding="3dp"
-        android:textSize="20dp"
+        android:layout_gravity="top|center"
+        android:textSize="35dp"
+        android:background="#11000000"
+        android:textColor="#000000"
         android:gravity="center_vertical|center_horizontal"
         android:textAlignment="gravity" />
-
-    <!--<TextView
-        android:layout_width="80dp"
-        android:layout_height="35dp"
-        android:id = "@+id/exerciseSetandCount"
-        android:rotation="-90"
-        android:background="#AAAAAA"
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:id = "@+id/exerciseSetNum"
+        android:layout_gravity="top|center"
         android:textSize="20dp"
-        android:text="0 SET 0"
-        android:layout_gravity="bottom|right"
-        android:textAlignment="gravity"
+        android:background="#11000000"
+        android:textColor="#000000"
         android:gravity="center_vertical|center_horizontal"
-        android:visibility="invisible"/>-->
+        android:textAlignment="gravity"
+        android:layout_marginTop="40dp"
+    />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id = "@+id/exerciseCurSetNum"
+        android:layout_gravity="top|center"
+        android:textSize="25dp"
+        android:background="#11000000"
+        android:textColor="#000000"
+        android:gravity="center_vertical|center_horizontal"
+        android:textAlignment="gravity"
+        android:layout_marginTop="70dp"
+        />
+
+
 
     <Button
         android:id = "@+id/start_button"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="start"
+        android:layout_height="100dp"
+        android:layout_width="100dp"
+        android:background="@drawable/start_button_click"
         android:layout_gravity="center_vertical|center_horizontal"/>
+
+    <ImageView
+        android:id="@+id/exercise_exit"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/stop_button_click"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/exercise_guide"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/guide_image"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/guide_exit"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right|top"
+        android:background="@drawable/exit_image"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="35dp"
+        android:visibility="invisible"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/count_textview"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="invisible"
+        android:textSize = "50dp"
+        android:gravity="center_vertical|center_horizontal"
+        android:textAlignment="gravity"/>
 
 </FrameLayout>

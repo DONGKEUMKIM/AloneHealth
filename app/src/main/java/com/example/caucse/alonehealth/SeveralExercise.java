@@ -1,6 +1,5 @@
 package com.example.caucse.alonehealth;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,17 +23,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfKeyPoint;
 
 import java.util.Locale;
-
 import static android.speech.tts.TextToSpeech.ERROR;
 
 public class SeveralExercise extends AppCompatActivity implements  CameraBridgeViewBase.CvCameraViewListener2{
@@ -48,11 +44,15 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
 
     //////
     private Button startButton;
-    ImageView stopImage;
 
     private TextView exercisename_Text;
-    //private TextView exercisecount_Text;
+    private TextView exerciseCountTextView;
+    private TextView exerciseSetNumTextView;
+    private TextView exerciseCurSetNumTextView;
     private TextToSpeech tts;
+    private ImageView exercise_Guide;
+    private ImageView guide_Exit;
+    private ImageView exercise_Exit;
 
     //표본 Mat
     private Mat matFirstSample;
@@ -89,7 +89,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
     String exercise_name;
 
     //현재 운동 횟수, 세트수
-    int current_count = 0, current_set = 0;
+    int current_count = 0, current_set = 1;
 
 
     //time interval
@@ -217,55 +217,68 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
 
 
         startButton = (Button) findViewById(R.id.start_button);
-        //stopImage = (ImageView) findViewById(R.id.stop);
         exercisename_Text = (TextView) findViewById(R.id.exerciseName);
-        //exercisecount_Text = (TextView) findViewById(R.id.exerciseSetandCount);
+        exerciseCountTextView = (TextView)findViewById(R.id.count_textview);
+        exerciseSetNumTextView = (TextView)findViewById(R.id.exerciseSetNum);
+        exercise_Guide = (ImageView) findViewById(R.id.exercise_guide);
+        guide_Exit = (ImageView) findViewById(R.id.guide_exit);
+        exercise_Exit = (ImageView) findViewById(R.id.exercise_exit);
+        exerciseCurSetNumTextView  = (TextView) findViewById(R.id.exerciseCurSetNum);
 
-        exercisename_Text.setText(exercise_name + " : " + exercise_set + " set " + exercise_count);
+        exercisename_Text.setText(exercise_name);
+        exerciseSetNumTextView.setText(String.format("목표 : %d 세트 %d 개",exercise_set,exercise_count));
+        exerciseCurSetNumTextView.setText(String.format("현재 : %d 세트 %d 개",current_set,current_count));
+        exerciseCountTextView.setText("운동 준비");
 
-        exercisename_Text.setRotation(-90);
 
-        //startButton.setRotation(-90);
-
-        //전자녀
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != ERROR) {
-                    tts.setLanguage(Locale.KOREAN);
-                }
-            }
-        });
         //시작 버튼
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startButton.setVisibility(startButton.GONE);
-                exercisename_Text.bringToFront();
-                //exercisecount_Text.setVisibility(exercisecount_Text.VISIBLE);
+                exercise_Guide.setVisibility(exercise_Guide.VISIBLE);
+                guide_Exit.setVisibility(guide_Exit.VISIBLE);
+            }
+        });
+
+        guide_Exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                exercise_Guide.setVisibility(exercise_Guide.GONE);
+                guide_Exit.setVisibility(guide_Exit.GONE);
                 if(user_state == INIT_STATE){
                     startButton.setVisibility(View.GONE);
                     tts.setPitch(1.0f);
                     tts.setSpeechRate(1.0f);
                     tts.speak(String.format("운동을 시작합니다. %d초 안에 자세를 취해주세요",exercisePrepareInterval), TextToSpeech.QUEUE_FLUSH, null);
+                    exerciseCountTextView.setVisibility(View.VISIBLE);
                     registerReceiver(broadcastReceiver,intentFilter);
                 }
             }
         });
+
         //화면 클릭 시 정지 버튼 활성화
         mOpenCvCameraView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (startButton.getVisibility() == startButton.GONE) {
-                    //stopImage.setVisibility(stopImage.VISIBLE);
-                    //stopImage.bringToFront();
+                    if(exercise_Exit.getVisibility() == exercise_Exit.GONE) {
+                        exercise_Exit.setVisibility(exercise_Exit.VISIBLE);
+                        exercise_Exit.bringToFront();
+                    }
+                    else if(exercise_Exit.getVisibility() == exercise_Exit.VISIBLE){
+                        exercise_Exit.setVisibility(exercise_Exit.GONE);
+                    }
                 }
             }
         });
+
         //운동 정지 확인
-        /*stopImage.setOnClickListener(new View.OnClickListener() {
+        exercise_Exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                exercisename_Text.bringToFront();
                 AlertDialog.Builder builder = new AlertDialog.Builder(SeveralExercise.this)
                         .setTitle("운동 중지")
                         .setMessage("운동을 그만 두시겠습니까?").setPositiveButton("예", new DialogInterface.OnClickListener() {
@@ -282,7 +295,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                         .setNegativeButton("아니요", null);
                 builder.show();
             }
-        });*/
+        });
 
         //UI처리 쓰레드 핸들러
         mHandler = new Handler(){
@@ -292,19 +305,23 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                         case INIT_STATE:
                             break;
                         case START_STATE:
-                            tts.speak(String.format("표본 추출을 위해 운동 시작 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
+                            exerciseCountTextView.setText("1 번째 자세");
+                            tts.speak(String.format("표본 추출을 위해 운동 첫번째 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
                             registerReceiver(broadcastReceiver,intentFilter);
                             break;
                         case FIRST_STATE:
-                            tts.speak(String.format("운동 두 번쨰 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
+                            exerciseCountTextView.setText("2 번째 자세");
+                            tts.speak(String.format("운동 두번쨰 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
                             registerReceiver(broadcastReceiver,intentFilter);
                             break;
                         case SECOND_STATE:
-                            tts.speak(String.format("운동 세 번째 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
+                            exerciseCountTextView.setText("3 번째 자세");
+                            tts.speak(String.format("운동 세번째 자세를 취해 주세요.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
                             registerReceiver(broadcastReceiver,intentFilter);
                             break;
                         case THIRD_STATE:
                             user_state = READY_STATE;
+                            exerciseCountTextView.setText("표본추출 완료");
                             tts.speak(String.format("표본 추출이 완료되었습니다.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
                             registerReceiver(broadcastReceiver,intentFilter);
                             TimerThread timerThread = new TimerThread();
@@ -320,12 +337,16 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             max_difference23 = CountWhitePixels(matDiff.getNativeObjAddr());
                             CreateDifferenceImage(matThirdSample.getNativeObjAddr(), matFirstSample.getNativeObjAddr(), matDiff.getNativeObjAddr());
                             max_difference31 = CountWhitePixels(matDiff.getNativeObjAddr());
+                            exerciseCountTextView.setText("운동 시작");
                             tts.speak(String.format("운동을 시작해주세요."), TextToSpeech.QUEUE_FLUSH, null);
                             user_state = COUNT_STATE;
                             break;
                         case COUNT_STATE:
                             if (current_count >= exercise_count) {
-                                exercise_set++;
+                                current_set++;
+                                exerciseCountTextView.setTextSize(100);
+                                exerciseCountTextView.setText(current_count);
+                                exerciseCurSetNumTextView.setText(String.format("현재 : %d 세트 %d 개",current_set,current_count));
                                 if (current_set >= exercise_set) {
                                     user_state = EXIT_STATE;
                                     tts.speak(String.format("운동이 완료되었습니다. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);
@@ -333,7 +354,9 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                                     count = 3;
                                     timerThread2.start();
                                 } else {
-                                    tts.speak(String.format("한 세트가 완료되었습니다. %d초간 휴식을 취해주세요. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);
+                                    exerciseCountTextView.setTextSize(50);
+                                    exerciseCountTextView.setText("세트 완료");
+                                    tts.speak(String.format("%d 세트가 완료되었습니다. %d초간 휴식을 취해주세요. ", current_set, setInterval), TextToSpeech.QUEUE_FLUSH, null);
                                     user_state = REST_STATE;
                                     count = setInterval + 5;
                                     TimerThread timerThread1 = new TimerThread();
@@ -343,7 +366,9 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             }
                             break;
                         case REST_STATE:
+                            exerciseCountTextView.setText("운동 시작");
                             tts.speak(String.format("운동을 다시 시작해주세요. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);
+                            current_count = 0;
                             user_state = COUNT_STATE;
                             break;
                         case EXIT_STATE:
@@ -530,31 +555,30 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         Mat matSecondDiff= new Mat(matFrame.rows(), matFrame.cols(), matFrame.type());
         Mat matThirdDiff= new Mat(matFrame.rows(), matFrame.cols(), matFrame.type());
 
-
         CreateDifferenceImage(matFrame.getNativeObjAddr(), matFirstSample.getNativeObjAddr(), matFirstDiff.getNativeObjAddr());
         CreateDifferenceImage(matFrame.getNativeObjAddr(), matSecondSample.getNativeObjAddr(), matSecondDiff.getNativeObjAddr());
         CreateDifferenceImage(matFrame.getNativeObjAddr(), matThirdSample.getNativeObjAddr(), matThirdDiff.getNativeObjAddr());
 
-        int differenceWithFirst = sumOfWhitePixels(matFirstSample,8);
-        int differenceWithSecond = sumOfWhitePixels(matSecondSample,8);
-        int differenceWithThird = sumOfWhitePixels(matThirdSample,8);
+        int differenceWithFirst = sumOfWhitePixels(matFirstDiff,8);
+        int differenceWithSecond = sumOfWhitePixels(matSecondDiff,8);
+        int differenceWithThird = sumOfWhitePixels(matThirdDiff,8);
         counting(differenceWithFirst,differenceWithSecond, differenceWithThird);
     }
 
     private synchronized void counting(int differenceWithFirst,int differenceWithSecond,int differenceWithThird){
         switch(count_state) {
             case FIRST_POSITION:
-                if (differenceWithSecond < max_difference12 / 10) {
+                if (differenceWithSecond < max_difference12 / 3) {
                     count_state = SECOND_POSITION;
                 }
                 break;
             case SECOND_POSITION:
-                if (differenceWithThird < max_difference23 / 10) {
+                if (differenceWithThird < max_difference23 / 3) {
                     count_state = THIRD_POSITION;
                 }
                 break;
             case THIRD_POSITION:
-                if (differenceWithFirst < max_difference31 / 10) {
+                if (differenceWithFirst < max_difference31 / 3) {
                     current_count++;
                     count_state = FIRST_POSITION;
                     if(current_count >= exercise_count) {
@@ -565,8 +589,8 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                     else
                         mHandler.sendEmptyMessage(0);
                     //exercisecount_Text.setText(current_set + " SET " + current_count);
-                    startButton.setText(current_set + " SET " + current_count);
-                    tts.speak(String.format("%d",exercise_count), TextToSpeech.QUEUE_FLUSH, null);
+
+                    tts.speak(String.format("%d",current_count), TextToSpeech.QUEUE_FLUSH, null);
                 }
                 break;
         }

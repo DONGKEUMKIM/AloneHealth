@@ -167,7 +167,7 @@ public class ExerciseShotActivity extends AppCompatActivity
                             break;
                     }
                     unregisterReceiver(broadcastReceiver);
-                    Toast.makeText( ExerciseShotActivity.this , String.format("Progress : %d",progress), Toast.LENGTH_SHORT ).show();
+                    //Toast.makeText( ExerciseShotActivity.this , String.format("Progress : %d",progress), Toast.LENGTH_SHORT ).show();
                 }
             }
         };
@@ -178,7 +178,7 @@ public class ExerciseShotActivity extends AppCompatActivity
         //운동 set 수 text view
         settext = (TextView) findViewById(R.id.settext);
         currentSetNumberTextView = (TextView)findViewById(R.id.current_set_number);
-        completeImage = (ImageView)findViewById(R.id.complete);
+        completeImage = (ImageView)findViewById(R.id.complete_shot);
         completeImage.setVisibility(completeImage.INVISIBLE);
         //운동 이름, set 수 넘겨 받기
         Intent intent = getIntent();
@@ -615,4 +615,5 @@ public class ExerciseShotActivity extends AppCompatActivity
 
         return sum;
     }
+
 }

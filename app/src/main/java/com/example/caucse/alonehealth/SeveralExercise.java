@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +54,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
     private ImageView exercise_Guide;
     private ImageView guide_Exit;
     private ImageView exercise_Exit;
+    private ImageView completeImage;
 
     //표본 Mat
     private Mat matFirstSample;
@@ -177,8 +179,8 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             break;
                         case READY_STATE:
                             user_state = COUNT_STATE;
-                            mHandler.sendEmptyMessage(0);
                             break;
+
                     }
                     unregisterReceiver(broadcastReceiver);
                 }
@@ -232,6 +234,8 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         guide_Exit = (ImageView) findViewById(R.id.guide_exit);
         exercise_Exit = (ImageView) findViewById(R.id.exercise_exit);
         exerciseCurSetNumTextView  = (TextView) findViewById(R.id.exerciseCurSetNum);
+        completeImage = (ImageView) findViewById(R.id.complete_several);
+        completeImage.setVisibility(completeImage.INVISIBLE);
 
         exercisename_Text.setText(exercise_name);
         exerciseSetNumTextView.setText(String.format("목표 : %d 세트 %d 개",exercise_set,exercise_count));
@@ -332,7 +336,6 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             user_state = READY_STATE;
                             exerciseCountTextView.setText("표본추출 완료");
                             tts.speak(String.format("표본 추출이 완료되었습니다.",samplingInterval), TextToSpeech.QUEUE_FLUSH, null);
-                            registerReceiver(broadcastReceiver,intentFilter);
                             TimerThread timerThread = new TimerThread();
                             count = samplingInterval;
                             timerThread.start();
@@ -354,9 +357,11 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             if (current_count >= exercise_count) {
                                 current_set++;
                                 exerciseCountTextView.setTextSize(100);
-                                exerciseCountTextView.setText(current_count);
+                                exerciseCountTextView.setText(""+current_count);
                                 exerciseCurSetNumTextView.setText(String.format("현재 : %d 세트 %d 개",current_set,current_count));
                                 if (current_set >= exercise_set) {
+                                    completeImage.setVisibility(completeImage.VISIBLE);
+                                    exerciseCountTextView.setVisibility(exerciseCountTextView.INVISIBLE);
                                     user_state = EXIT_STATE;
                                     tts.speak(String.format("운동이 완료되었습니다. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);
                                     TimerThread timerThread2 = new TimerThread();
@@ -643,8 +648,6 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                     }
                     else
                         mHandler.sendEmptyMessage(0);
-                    //exercisecount_Text.setText(current_set + " SET " + current_count);
-
                     tts.speak(String.format("%d",current_count), TextToSpeech.QUEUE_FLUSH, null);
                 }
                 break;
@@ -683,9 +686,11 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         }
         return sum;
     }
-
     @Override
-    public void onBackPressed() {
-
+    public void onBackPressed(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        tts.shutdown();
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 }

@@ -284,6 +284,7 @@ public class ExerciseShotActivity extends AppCompatActivity
                             break;
                         case TOWARD_EXERCISE:
                             if(exercise_count >= num){
+                                exercise_set ++;
                                 if(exercise_set >= set){
                                     progress = COMPLETE_EXERCISE;
                                     tts.speak(String.format("운동이 완료되었습니다. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);

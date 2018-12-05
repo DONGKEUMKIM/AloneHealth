@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -179,6 +180,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             break;
                         case READY_STATE:
                             user_state = COUNT_STATE;
+                            mHandler.sendEmptyMessage(0);
                             break;
 
                     }
@@ -354,10 +356,10 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             registerReceiver(broadcastReceiver,intentFilter);
                             break;
                         case COUNT_STATE:
+                            exerciseCountTextView.setTextSize(100);
+                            exerciseCountTextView.setText(""+current_count);
                             if (current_count >= exercise_count) {
                                 current_set++;
-                                exerciseCountTextView.setTextSize(100);
-                                exerciseCountTextView.setText(""+current_count);
                                 exerciseCurSetNumTextView.setText(String.format("현재 : %d 세트 %d 개",current_set,current_count));
                                 if (current_set >= exercise_set) {
                                     completeImage.setVisibility(completeImage.VISIBLE);
@@ -496,7 +498,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
             switch (user_state) {
                 case INIT_STATE:
                     break;
-                case START_STATE:
+                case FIRST_STATE:
                     if (matFirstSample == null) {
                         matFirstSample = matGray.clone();
                     }

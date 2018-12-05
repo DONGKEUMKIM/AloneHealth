@@ -69,6 +69,7 @@ public class ExerciseShotActivity extends AppCompatActivity
     private final static int REST_EXERCISE = 6;
     int progress = INIT;
     ///////////////////////////////////
+    ImageView completeImage;
     Button startButton;
     ImageView stopImage;
     TextView exercisetext, settext;
@@ -177,7 +178,8 @@ public class ExerciseShotActivity extends AppCompatActivity
         //운동 set 수 text view
         settext = (TextView) findViewById(R.id.settext);
         currentSetNumberTextView = (TextView)findViewById(R.id.current_set_number);
-
+        completeImage = (ImageView)findViewById(R.id.complete);
+        completeImage.setVisibility(completeImage.INVISIBLE);
         //운동 이름, set 수 넘겨 받기
         Intent intent = getIntent();
         /**
@@ -300,6 +302,7 @@ public class ExerciseShotActivity extends AppCompatActivity
                             if(exercise_count >= num){
                                 exercise_set ++;
                                 if(exercise_set >= set){
+                                    completeImage.setVisibility(completeImage.VISIBLE);
                                     progress = COMPLETE_EXERCISE;
                                     tts.speak(String.format("운동이 완료되었습니다. ",setInterval), TextToSpeech.QUEUE_FLUSH, null);
                                     TimerThread timerThread2 = new TimerThread();

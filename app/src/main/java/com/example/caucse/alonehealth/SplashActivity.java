@@ -6,6 +6,9 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class SplashActivity extends AppCompatActivity {
     SQLiteManager sqLiteManager;
 

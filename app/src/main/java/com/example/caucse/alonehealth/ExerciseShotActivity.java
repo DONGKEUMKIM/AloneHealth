@@ -36,7 +36,7 @@ import java.util.Locale;
 import static android.speech.tts.TextToSpeech.ERROR;
 
 public class ExerciseShotActivity extends AppCompatActivity
-        implements CameraBridgeViewBase.CvCameraViewListener2 {
+    implements CameraBridgeViewBase.CvCameraViewListener2 {
     //sampling variable
     private static final String TAG = "opencv";
     private CameraBridgeViewBase mOpenCvCameraView;
@@ -77,6 +77,7 @@ public class ExerciseShotActivity extends AppCompatActivity
     int set, num;
     String exercise;
     String date;
+    String id;
     //time interval
     int exercisePrepareInterval = 7;
     int samplingInterval = 4;
@@ -179,6 +180,7 @@ public class ExerciseShotActivity extends AppCompatActivity
         num = intent.getExtras().getInt("Number");
         set = intent.getExtras().getInt("Set");
         date = intent.getExtras().getString("DATE");
+        id = intent.getExtras().getString("ID");
         exercisetext.setText(exercise);
         settext.setText(set + " SET " + num);
 
@@ -352,7 +354,8 @@ public class ExerciseShotActivity extends AppCompatActivity
                             SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(date,
                                     chest, arm, abs, shoulder, back,legs));
 
-
+                            //String ex_id = SQLiteManager.sqLiteManager.selectExerciseIdFromName();
+                            SQLiteManager.sqLiteManager.updateScheduleData(new ScheduleData(id, date,thisExercise.getId(),set,num,1 ));
                             Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                             startActivity(intent);
                             finish();

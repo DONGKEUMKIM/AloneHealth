@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity{
     ////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////
+    Character maincharacter;
+
     String characterdate;
     CharacterStatData ThisMonthCharacterStat;
     //////////////////////////////////////////////////////
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity{
 
         ThisMonthCharacterStat = new CharacterStatData();
         ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(characterdate);
+
         /////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////뷰페이저 체인지리스너//////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -352,65 +355,15 @@ public class MainActivity extends AppCompatActivity{
                 else if(action == MotionEvent.ACTION_UP){
                     startbutton.setBackgroundResource(R.drawable.startbutton);
 
-                    if(selectedOrientation == 0) {
-                        //test용!
-                        ExerciseData thisExercise = SQLiteManager.sqLiteManager.selectExerciseDataFormExerciseName(selectedEN);
-                        int totalTimes = selectedSet * selectednumber;     //운동의 총 횟수
-                        int arm = 0;
-                        int shoulder=0;
-                        int back = 0;
-                        int chest = 0;
-                        int abs = 0;
-                        int legs = 0;
-                        if(thisExercise.getArm() != 0)
-                            arm = (int)(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02);
-                        else
-                            arm = ThisMonthCharacterStat.getArm();
+                    Intent intent = new Intent(getApplicationContext(),
+                            ExerciseShotActivity.class);
+                    intent.putExtra("Exercise", selectedEN);
+                    intent.putExtra("ID",selectedItemId);
+                    intent.putExtra("Set", selectedSet);
+                    intent.putExtra("Number", selectednumber);
+                    intent.putExtra("DATE", characterdate);
+                    startActivity(intent);
 
-                        if(thisExercise.getShoulder() != 0)
-                            shoulder = (int)(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02);
-                        else
-                            shoulder = ThisMonthCharacterStat.getShoulder();
-
-                        if(thisExercise.getBack() != 0)
-                            back = (int)(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02);
-                        else
-                            back = ThisMonthCharacterStat.getBack();
-
-                        if(thisExercise.getChest() != 0)
-                            chest = (int)(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02);
-                        else
-                            chest = ThisMonthCharacterStat.getChest();
-
-                        if(thisExercise.getAbs() != 0)
-                            abs = (int)(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02);
-                        else
-                            abs = ThisMonthCharacterStat.getAbs();
-
-                        if(thisExercise.getLeg() != 0)
-                            legs = (int)(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02);
-                        else
-                            legs = ThisMonthCharacterStat.getLeg();
-
-                        SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(characterdate,
-                                chest, arm, abs, shoulder, back,legs));
-
-                        //가로용 액티비티 전환
-                        /*Intent intent = new Intent(getApplicationContext(),
-                                ExerciseShotActivity.class);
-                        intent.putExtra("Exercise", selectedEN);
-                        intent.putExtra("Set", selectedSet);
-                        intent.putExtra("Number", selectednumber);
-                        intent.putExtra("DATE", characterdate);
-                        startActivity(intent);*/
-                    }
-                    else if(selectedOrientation == 1)
-                    {
-                        //세로용 액티비티 전환
-                        /*intent.putExtra("Exercise", selectedEN);
-                        intent.putExtra("Set", selectedSet);
-                        intent.putExtra("Number", selectednumber);*/
-                    }
                 }
                 return true;
             }
@@ -482,6 +435,7 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case 1 :    //운동캘린더 뷰
                 view = inflater.inflate(R.layout.main_bot_cal, frame, false);
+
                 bot_state = 2;
                 break;
         }
@@ -626,7 +580,6 @@ public class MainActivity extends AppCompatActivity{
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
                                 Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getBack());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
-
                         }
                         return true;
                     }

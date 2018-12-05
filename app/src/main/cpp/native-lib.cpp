@@ -450,11 +450,6 @@ Java_com_example_caucse_alonehealth_SeveralExercise_InvertMat(JNIEnv *env, jobje
     // TODO
     Mat &matInput = *(Mat *)matAddrInput;
     Mat &matResult = *(Mat *)matAddrResult;
-
-
     flip(matInput,matResult,1);
-
-}
-void rotate(Mat &image1, Mat &image2, int degree){
 
 }

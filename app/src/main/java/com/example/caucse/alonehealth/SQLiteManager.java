@@ -263,7 +263,7 @@ public class SQLiteManager extends SQLiteOpenHelper {
                 sqLiteManager.insertExerciseData(new ExerciseData("EX3","풀업",0, 2, 0,1,0,1,2,0));
                 sqLiteManager.insertExerciseData(new ExerciseData("EX2","윗몸일으키기",0,2,0,0,2,0,0,1));
                 sqLiteManager.insertExerciseData(new ExerciseData("EX1","팔굽혀펴기",0,2,2,2,0,2,0,0));
-                sqLiteManager.insertExerciseData(new ExerciseData("EX5","프론트사이드레이즈",0,3,0,2,0,2,0,0));
+                sqLiteManager.insertExerciseData(new ExerciseData("EX5","프론트사이드레이즈",1,3,0,2,0,2,0,0));
 
                 if(chracterstatdate.size() > 0)       //해당 달에 이미 추가된 데이터값이 있을때
                 {

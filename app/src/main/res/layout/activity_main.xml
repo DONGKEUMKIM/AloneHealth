@@ -41,7 +41,8 @@
             <FrameLayout
                 android:id="@+id/MAIN_FL_UP"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                >
 
             </FrameLayout>
 

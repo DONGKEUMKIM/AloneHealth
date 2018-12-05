@@ -87,9 +87,11 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
     //운동
     int exercise_set, exercise_count;
     String exercise_name;
-
+    String exercise_date;    //운동 날짜
+    String characterdate;   //캐릭터 날짜
+    String id;
     //현재 운동 횟수, 세트수
-    int current_count = 0, current_set = 1;
+    int current_count = 0, current_set = 0;
 
 
     //time interval
@@ -214,7 +216,9 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
         exercise_name = intent.getExtras().getString("Exercise");
         exercise_count = intent.getExtras().getInt("Number");
         exercise_set = intent.getExtras().getInt("Set");
-
+        exercise_date = intent.getExtras().getString("DATE");
+        characterdate = intent.getExtras().getString("CHARACTERDATE");
+        id = intent.getExtras().getString("ID");
 
         startButton = (Button) findViewById(R.id.start_button);
         exercisename_Text = (TextView) findViewById(R.id.exerciseName);
@@ -361,7 +365,7 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                                     count = setInterval + 5;
                                     TimerThread timerThread1 = new TimerThread();
                                     timerThread1.start();
-                                    exercise_count = 0;
+                                    current_count = 0;
                                 }
                             }
                             break;
@@ -372,6 +376,52 @@ public class SeveralExercise extends AppCompatActivity implements  CameraBridgeV
                             user_state = COUNT_STATE;
                             break;
                         case EXIT_STATE:
+                            //부위 능력치 변화
+                            ExerciseData thisExercise = SQLiteManager.sqLiteManager.selectExerciseDataFormExerciseName(exercise_name);
+                            CharacterStatData ThisMonthCharacterStat = new CharacterStatData();
+                            ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(characterdate);
+
+                            int totalTimes = exercise_set * exercise_count;     //운동의 총 횟수
+                            int arm = 0;
+                            int shoulder=0;
+                            int back = 0;
+                            int chest = 0;
+                            int abs = 0;
+                            int legs = 0;
+                            if(thisExercise.getArm() != 0)
+                                arm = (int)(Math.ceil(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02));
+                            else
+                                arm = ThisMonthCharacterStat.getArm();
+
+                            if(thisExercise.getShoulder() != 0)
+                                shoulder = (int)(Math.ceil(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02));
+                            else
+                                shoulder = ThisMonthCharacterStat.getShoulder();
+
+                            if(thisExercise.getBack() != 0)
+                                back = (int)(Math.ceil(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02));
+                            else
+                                back = ThisMonthCharacterStat.getBack();
+
+                            if(thisExercise.getChest() != 0)
+                                chest = (int)(Math.ceil(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02));
+                            else
+                                chest = ThisMonthCharacterStat.getChest();
+
+                            if(thisExercise.getAbs() != 0)
+                                abs = (int)(Math.ceil(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02));
+                            else
+                                abs = ThisMonthCharacterStat.getAbs();
+
+                            if(thisExercise.getLeg() != 0)
+                                legs = (int)(Math.ceil(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02));
+                            else
+                                legs = ThisMonthCharacterStat.getLeg();
+
+                            SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(characterdate,
+                                    chest, arm, abs, shoulder, back,legs));
+
+                            SQLiteManager.sqLiteManager.updateScheduleData(new ScheduleData(id,exercise_date,thisExercise.getId(),exercise_set,exercise_count,1 ));
                             user_state = INIT_STATE;
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

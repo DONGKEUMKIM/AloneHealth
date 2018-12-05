@@ -171,6 +171,8 @@ public class MainActivity extends AppCompatActivity{
                 Intent intent = new Intent(getApplicationContext(),
                         CalendarManager.class);
                 startActivity(intent);
+
+                finish();
             }
         });
 
@@ -183,6 +185,7 @@ public class MainActivity extends AppCompatActivity{
                         MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -338,6 +341,7 @@ public class MainActivity extends AppCompatActivity{
                             Intent intent = new Intent(getApplicationContext(),
                                     CalendarManager.class);
                             startActivity(intent);
+                            finish();
                         }
                 }
                 return true;
@@ -355,14 +359,32 @@ public class MainActivity extends AppCompatActivity{
                 else if(action == MotionEvent.ACTION_UP){
                     startbutton.setBackgroundResource(R.drawable.startbutton);
 
-                    Intent intent = new Intent(getApplicationContext(),
-                            SeveralExercise.class);
-                    intent.putExtra("Exercise", selectedEN);
-                    intent.putExtra("ID",selectedItemId);
-                    intent.putExtra("Set", selectedSet);
-                    intent.putExtra("Number", selectednumber);
-                    intent.putExtra("DATE", characterdate);
-                    startActivity(intent);
+                    if(selectedOrientation == 0) {
+                        Intent intent = new Intent(getApplicationContext(),
+                                ExerciseShotActivity.class);
+                        intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("ID", selectedItemId);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);
+                        intent.putExtra("CHARACTERDATE", characterdate);
+                        intent.putExtra("DATE", selectedDate);
+                        startActivity(intent);
+                        finish();
+                    }
+                    else if(selectedOrientation == 1)
+                    {
+                        Intent intent = new Intent(getApplicationContext(),
+                                SeveralExercise.class);
+                        intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("ID", selectedItemId);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);
+                        intent.putExtra("CHARACTERDATE", characterdate);
+                        intent.putExtra("DATE", selectedDate);
+                        startActivity(intent);
+                        finish();
+
+                    }
 
                 }
                 return true;
@@ -682,7 +704,7 @@ public class MainActivity extends AppCompatActivity{
 
         LinearGradient shader = null;
 
-        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(updatedBitmap);
         canvas.drawBitmap(originalBitmap, 0, 0, null);
 

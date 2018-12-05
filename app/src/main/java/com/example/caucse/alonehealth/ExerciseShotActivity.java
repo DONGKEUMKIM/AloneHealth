@@ -76,6 +76,7 @@ public class ExerciseShotActivity extends AppCompatActivity
     TextToSpeech tts;
     int set, num;
     String exercise;
+    String characterdate;
     String date;
     String id;
     //time interval
@@ -86,7 +87,7 @@ public class ExerciseShotActivity extends AppCompatActivity
     //운동 카운트 플래그
     boolean isFirstPosition = true;
     boolean isLastPosition = false;
-    int exercise_count = -1;
+    int exercise_count = 0;
     int exercise_set = 0;
 
     /**TTS 브로드캐스트 리시버*/
@@ -157,6 +158,12 @@ public class ExerciseShotActivity extends AppCompatActivity
                             count = samplingInterval;
                             timerThread.start();
                             break;
+                        case TOWARD_SAMPLING:
+                            progress = TOWARD_EXERCISE;
+                            timerThread = new TimerThread();
+                            count = samplingInterval;
+                            timerThread.start();
+                            break;
                     }
                     unregisterReceiver(broadcastReceiver);
                     Toast.makeText( ExerciseShotActivity.this , String.format("Progress : %d",progress), Toast.LENGTH_SHORT ).show();
@@ -179,6 +186,7 @@ public class ExerciseShotActivity extends AppCompatActivity
         exercise = intent.getExtras().getString("Exercise");
         num = intent.getExtras().getInt("Number");
         set = intent.getExtras().getInt("Set");
+        characterdate = intent.getExtras().getString("CHARACTERDATE");
         date = intent.getExtras().getString("DATE");
         id = intent.getExtras().getString("ID");
         exercisetext.setText(exercise);
@@ -228,8 +236,13 @@ public class ExerciseShotActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 if (startButton.getVisibility() == startButton.GONE) {
-                    stopImage.setVisibility(stopImage.VISIBLE);
-                    stopImage.bringToFront();
+                    if(stopImage.getVisibility() == stopImage.INVISIBLE) {
+                        stopImage.setVisibility(stopImage.VISIBLE);
+                        stopImage.bringToFront();
+                    }
+                    else if(stopImage.getVisibility() == stopImage.VISIBLE){
+                        stopImage.setVisibility(stopImage.INVISIBLE);
+                    }
                 }
             }
         });
@@ -280,7 +293,8 @@ public class ExerciseShotActivity extends AppCompatActivity
                             CreateDifferenceImage(mStartSample.getNativeObjAddr(), mEndSample.getNativeObjAddr(), matDiff.getNativeObjAddr());
                             max_difference = CountWhitePixels(matDiff.getNativeObjAddr());
                             tts.speak(String.format("운동을 시작해주세요."), TextToSpeech.QUEUE_FLUSH, null);
-                            progress = TOWARD_EXERCISE;
+                            registerReceiver(broadcastReceiver, intentFilter);
+                            //progress = TOWARD_EXERCISE;
                             break;
                         case TOWARD_EXERCISE:
                             if(exercise_count >= num){
@@ -313,7 +327,7 @@ public class ExerciseShotActivity extends AppCompatActivity
                             //부위 능력치 변화
                             ExerciseData thisExercise = SQLiteManager.sqLiteManager.selectExerciseDataFormExerciseName(exercise);
                             CharacterStatData ThisMonthCharacterStat = new CharacterStatData();
-                            ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(date);
+                            ThisMonthCharacterStat = SQLiteManager.sqLiteManager.selectCharacterStatDataFromDate(characterdate);
 
                             int totalTimes = set * num;     //운동의 총 횟수
                             int arm = 0;
@@ -323,40 +337,40 @@ public class ExerciseShotActivity extends AppCompatActivity
                             int abs = 0;
                             int legs = 0;
                             if(thisExercise.getArm() != 0)
-                                arm = (int)(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02);
+                                arm = (int)(Math.ceil(ThisMonthCharacterStat.getArm() + thisExercise.getArm()*totalTimes*0.02));
                             else
                                 arm = ThisMonthCharacterStat.getArm();
 
                             if(thisExercise.getShoulder() != 0)
-                                shoulder = (int)(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02);
+                                shoulder = (int)(Math.ceil(ThisMonthCharacterStat.getShoulder() + thisExercise.getShoulder()*totalTimes*0.02));
                             else
                                 shoulder = ThisMonthCharacterStat.getShoulder();
 
                             if(thisExercise.getBack() != 0)
-                                back = (int)(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02);
+                                back = (int)(Math.ceil(ThisMonthCharacterStat.getBack() + thisExercise.getBack()*totalTimes*0.02));
                             else
                                 back = ThisMonthCharacterStat.getBack();
 
                             if(thisExercise.getChest() != 0)
-                                chest = (int)(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02);
+                                chest = (int)(Math.ceil(ThisMonthCharacterStat.getChest() + thisExercise.getChest()*totalTimes*0.02));
                             else
                                 chest = ThisMonthCharacterStat.getChest();
 
                             if(thisExercise.getAbs() != 0)
-                                abs = (int)(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02);
+                                abs = (int)(Math.ceil(ThisMonthCharacterStat.getAbs() + thisExercise.getAbs()*totalTimes*0.02));
                             else
                                 abs = ThisMonthCharacterStat.getAbs();
 
                             if(thisExercise.getLeg() != 0)
-                                legs = (int)(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02);
+                                legs = (int)(Math.ceil(ThisMonthCharacterStat.getLeg() + thisExercise.getLeg()*totalTimes*0.02));
                             else
                                 legs = ThisMonthCharacterStat.getLeg();
 
-                            SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(date,
+                            SQLiteManager.sqLiteManager.updateCharacterData(new CharacterStatData(characterdate,
                                     chest, arm, abs, shoulder, back,legs));
 
                             //String ex_id = SQLiteManager.sqLiteManager.selectExerciseIdFromName();
-                            SQLiteManager.sqLiteManager.updateScheduleData(new ScheduleData(id, date,thisExercise.getId(),set,num,1 ));
+                            SQLiteManager.sqLiteManager.updateScheduleData(new ScheduleData(id,date,thisExercise.getId(),set,num,1 ));
                             Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                             startActivity(intent);
                             finish();

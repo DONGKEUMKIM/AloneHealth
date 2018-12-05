@@ -171,8 +171,6 @@ public class MainActivity extends AppCompatActivity{
                 Intent intent = new Intent(getApplicationContext(),
                         CalendarManager.class);
                 startActivity(intent);
-
-                finish();
             }
         });
 
@@ -185,8 +183,6 @@ public class MainActivity extends AppCompatActivity{
                         MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-
-                finish();
             }
         });
 
@@ -342,8 +338,6 @@ public class MainActivity extends AppCompatActivity{
                             Intent intent = new Intent(getApplicationContext(),
                                     CalendarManager.class);
                             startActivity(intent);
-
-                            finish();
                         }
                 }
                 return true;
@@ -360,31 +354,16 @@ public class MainActivity extends AppCompatActivity{
                 }
                 else if(action == MotionEvent.ACTION_UP){
                     startbutton.setBackgroundResource(R.drawable.startbutton);
-                        //가로용 액티비티 전환
-                        if(selectedOrientation == 0) {
-                            Intent intent = new Intent(getApplicationContext(),
-                                    ExerciseShotActivity.class);
-                            intent.putExtra("Exercise", selectedEN);
-                            intent.putExtra("Set", selectedSet);
-                            intent.putExtra("Number", selectednumber);
-                            intent.putExtra("CHARACTERDATE", characterdate);
-                            intent.putExtra("DATE", selectedDate);
-                            intent.putExtra("ID", selectedItemId);
-                            startActivity(intent);
-                        }
-                        else if(selectedOrientation == 1)
-                        {
-                            Intent intent = new Intent(getApplicationContext(),
-                                    SeveralExercise.class);
-                            intent.putExtra("Exercise", selectedEN);
-                            intent.putExtra("Set", selectedSet);
-                            intent.putExtra("Number", selectednumber);
-                            intent.putExtra("CHARACTERDATE", characterdate);
-                            intent.putExtra("DATE", selectedDate);
-                            intent.putExtra("ID", selectedItemId);
-                            startActivity(intent);
-                        }
-                    finish();
+
+                    Intent intent = new Intent(getApplicationContext(),
+                            ExerciseShotActivity.class);
+                    intent.putExtra("Exercise", selectedEN);
+                    intent.putExtra("ID",selectedItemId);
+                    intent.putExtra("Set", selectedSet);
+                    intent.putExtra("Number", selectednumber);
+                    intent.putExtra("DATE", characterdate);
+                    startActivity(intent);
+
                 }
                 return true;
             }
@@ -456,6 +435,7 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case 1 :    //운동캘린더 뷰
                 view = inflater.inflate(R.layout.main_bot_cal, frame, false);
+
                 bot_state = 2;
                 break;
         }
@@ -600,7 +580,6 @@ public class MainActivity extends AppCompatActivity{
                                 Bitmap myBitmap = ((BitmapDrawable)CharChangeView.getDrawable()).getBitmap();
                                 Bitmap newBitmap = ChangeResourceColor(myBitmap,ThisMonthCharacterStat.getBack());
                                 CharChangeView.setImageDrawable(new BitmapDrawable(getResources(), newBitmap));
-
                         }
                         return true;
                     }
@@ -703,7 +682,7 @@ public class MainActivity extends AppCompatActivity{
 
         LinearGradient shader = null;
 
-        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444);
+        Bitmap updatedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(updatedBitmap);
         canvas.drawBitmap(originalBitmap, 0, 0, null);
 

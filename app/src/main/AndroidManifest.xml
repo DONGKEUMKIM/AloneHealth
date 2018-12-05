@@ -52,6 +52,10 @@
             android:name=".ExerciseShotActivity"
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation" />
+        <activity
+            android:name=".SeveralExercise"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation" />
     </application>
 
 </manifest>

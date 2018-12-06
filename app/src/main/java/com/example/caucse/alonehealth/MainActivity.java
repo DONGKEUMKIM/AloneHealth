@@ -355,14 +355,29 @@ public class MainActivity extends AppCompatActivity{
                 else if(action == MotionEvent.ACTION_UP){
                     startbutton.setBackgroundResource(R.drawable.startbutton);
 
-                    Intent intent = new Intent(getApplicationContext(),
-                            SeveralExercise.class);
-                    intent.putExtra("Exercise", selectedEN);
-                    intent.putExtra("ID",selectedItemId);
-                    intent.putExtra("Set", selectedSet);
-                    intent.putExtra("Number", selectednumber);
-                    intent.putExtra("DATE", characterdate);
-                    startActivity(intent);
+                    if(selectedOrientation == 0) {
+                        Intent intent = new Intent(getApplicationContext(),
+                                ExerciseShotActivity.class);
+                        intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("ID", selectedItemId);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);
+                        intent.putExtra("CHARACTERDATE", characterdate);
+                        intent.putExtra("DATE",selectedDate);
+                        startActivity(intent);
+                    }
+                    else if(selectedOrientation == 1)
+                    {
+                        Intent intent = new Intent(getApplicationContext(),
+                                SeveralExercise.class);
+                        intent.putExtra("Exercise", selectedEN);
+                        intent.putExtra("ID", selectedItemId);
+                        intent.putExtra("Set", selectedSet);
+                        intent.putExtra("Number", selectednumber);
+                        intent.putExtra("CHARACTERDATE", characterdate);
+                        intent.putExtra("DATE",selectedDate);
+                        startActivity(intent);
+                    }
 
                 }
                 return true;

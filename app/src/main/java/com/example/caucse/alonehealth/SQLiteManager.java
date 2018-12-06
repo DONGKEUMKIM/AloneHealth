@@ -270,13 +270,13 @@ public class SQLiteManager extends SQLiteOpenHelper {
                     //날짜가 1일 일때
                     if(date_day_str.compareTo("01") == 0)
                     {
-                        sqLiteManager.insertCharacterData(new CharacterStatData(date_str, 29,29,29,29,29,29));
+                        sqLiteManager.insertCharacterData(new CharacterStatData(date_str, 0,0,80,0,0,0));
                     }
                     return false;
                 }
                 else
                 {
-                    sqLiteManager.insertCharacterData(new CharacterStatData(date_str, 29,29,29,29,29,29));
+                    sqLiteManager.insertCharacterData(new CharacterStatData(date_str, 0,0,80,0,0,0));
                 }
             }
             return true;
